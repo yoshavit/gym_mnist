@@ -1,3 +1,6 @@
+# Ignore resources (will be populated by setup.py script)
+gym-mnist/resources/digit*/
+gym-mnist/resources/zipfiles/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
