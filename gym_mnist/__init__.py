@@ -13,3 +13,11 @@ register(
     id='mnist-multiaction-v0',
     entry_point='gym_mnist.envs:MNISTMultiactionEnv',
 )
+register(
+    id='blockwalker-v0',
+    entry_point='gym_mnist.envs:BlockWalkerEnv',
+)
+register(
+    id='blockwalker-multicolored-v0',
+    entry_point='gym_mnist.envs:MulticoloredBlockWalkerEnv',
+)

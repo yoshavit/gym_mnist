@@ -10,7 +10,7 @@ setup(name='gym_mnist',
 try:
     from tensorflow.contrib.learn.python.learn.datasets.mnist import load_mnist
     this_dir = os.path.dirname(os.path.realpath(__file__))
-    data_dir = this_dir + "/gym-mnist/resources/"
+    data_dir = this_dir + "/gym_mnist/resources/"
     zip_dir = data_dir + "zipfiles/"
     if not os.path.exists(zip_dir):
         os.makedirs(zip_dir)

@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 IMG_SIDEWIDTH = 28
 CURRENT_DIR_TO_MNIST_DIR = "/../resources/"
-PARTIAL_DATASET_SIZE = 10000
+PARTIAL_DATASET_SIZE = 2000
 
 class MNISTEnv(gym.Env):
     '''
@@ -25,7 +25,7 @@ class MNISTEnv(gym.Env):
         '3' : multiply digit by 2
 '''
     metadata = {'render.modes': ['human', 'training']}
-    action_space = spaces.Discrete(3)
+    action_space = spaces.Discrete(4)
     observation_space = spaces.Box(low=0, high=255, shape=(IMG_SIDEWIDTH,IMG_SIDEWIDTH))
     def __init__(self, target_digit=0, full_mnist=False):
         # first, load all the MNIST images into RAM
@@ -38,7 +38,7 @@ class MNISTEnv(gym.Env):
             digit_filenames = os.listdir(DIGIT_DIR)
             if not full_mnist:
                 digit_filenames = np.random.choice(digit_filenames,
-                                                   int(PARTIAL_DATASET_SIZE/10))
+                                                   int(PARTIAL_DATASET_SIZE))
             self.mnist_library[i] = np.empty(
                 (len(digit_filenames),IMG_SIDEWIDTH,IMG_SIDEWIDTH))
             for j in range(len(digit_filenames)):
@@ -102,6 +102,9 @@ class MNISTEnv(gym.Env):
         random.shuffle(pairs)
         images, labels = zip(*pairs)
         return images, labels
+
+    def get_action_meanings(self):
+        return ACTION_MEANING
 
 ACTION_MEANING = {
     0 : "NOP",
