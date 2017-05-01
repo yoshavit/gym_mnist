@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 IMG_SIDEWIDTH = 28
 CURRENT_DIR_TO_MNIST_DIR = "/../resources/"
-PARTIAL_DATASET_SIZE = 2000
+PARTIAL_DATASET_SIZE = 1000
 
 class MNISTEnv(gym.Env):
     '''
@@ -65,13 +65,16 @@ class MNISTEnv(gym.Env):
         done = self.current_digit == self.target_digit
         if done:
             reward = 1.0
+        elif self.current_digit == 2 or self.current_digit == 7:
+            reward = -0.5
         else:
             reward = -0.1
         return (self.current_digit_image, reward, done, None)
 
     def _reset(self):
-        self.current_digit = np.random.randint(10)
+        self.current_digit = np.random.randint(9) + 1
         self.current_digit_image = self._get_image_from_digit(self.current_digit)
+        return self.current_digit_image
 
     def _render(self, mode='human', close=False):
         if mode != 'human': return

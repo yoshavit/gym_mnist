@@ -15,8 +15,8 @@ if os.environ['HOME'] == '/Users/yonadav':
 #------------------------------------------------------
 import cv2
 
-xmax = 10; ymax = 10
-PIXELS_PER_INDEX = 5
+xmax = 8; ymax = 8
+PIXELS_PER_INDEX = 4
 noise=True
 
 class BlockWalkerEnv(gym.Env):
@@ -31,15 +31,22 @@ class BlockWalkerEnv(gym.Env):
         self.figure = None
 
     def _step(self, action):
+        pos_before = np.copy(self.board.playerpos)
         self.board.step(ACTION_MEANING[action])
         self.obs = self.board.visualize()
         done = np.array_equal(self.board.playerpos, self.board.goalpos)
-        reward = 1 if done else 0
-        return self.obs, reward, done, None
+        pos_after = np.copy(self.board.playerpos)
+        reward = 0
+        if ACTION_MEANING[action] == "CSWAP":
+            reward = -.3
+        if done: reward = 1
+        info = {'state': pos_before, 'next_state': pos_after}
+        return self.obs, reward, done, info
 
     def _reset(self):
         self.board = BlockWalkerBoard()
         self.obs = self.board.visualize()
+        return self.obs
 
     def _render(self, mode='human', close=False):
         if mode != 'human': return
@@ -52,13 +59,23 @@ class BlockWalkerEnv(gym.Env):
             self.figure = plt.figure()
         plt.figure(self.figure.number)
         plt.imshow(self.obs)
-        plt.pause(0.01)
+        plt.pause(.01)
+
+    def get_action_meanings(self):
+        return ACTION_MEANING
 
 class MulticoloredBlockWalkerEnv(BlockWalkerEnv):
     action_space = spaces.Discrete(5)
     def _reset(self):
         self.board = MulticoloredBlockWalkerBoard()
         self.obs = self.board.visualize()
+        return self.obs
+
+class MulticoloredRandomBlockWalkerEnv(MulticoloredBlockWalkerEnv):
+    def _reset(self):
+        self.board = MulticoloredBlockWalkerBoard(boardarr=random_board())
+        self.obs = self.board.visualize()
+        return self.obs
 
 ACTION_MEANING = {
     0 : "UP",
@@ -119,13 +136,12 @@ class BlockWalkerBoard:
         draw.rectangle(idx_to_rectanglecoords(self.goalpos), fill=MAGENTA)
         draw.rectangle(idx_to_rectanglecoords(self.playerpos),
                        fill=RED, outline=BLACK)
+        im = np.array(im)
         if noise == True:
-            p = np.array(im)
-            p += cv2.randn(np.empty_like(p), (0, 0, 0), 0.25*
+            im += cv2.randn(np.empty_like(im), (0, 0, 0), 0.25*
                            np.array([[1, 0.5, 0.5],
                                      [0.5, 1, 0.5],
                                      [0.5, 0.5, 1]]))
-            im = Image.fromarray(p)
         return im
 
 COLORS = [RED, GREEN, BLUE]
@@ -139,7 +155,7 @@ class MulticoloredBlockWalkerBoard(BlockWalkerBoard):
         2 is blue
     """
     def __init__(self, boardarr=None):
-        if not boardarr:
+        if boardarr is None:
             boardarr = MulticoloredBlockWalkerBoard.default_board()
         BlockWalkerBoard.__init__(self, boardarr)
         self.player_cid = random.randrange(len(COLORS))
@@ -160,16 +176,14 @@ class MulticoloredBlockWalkerBoard(BlockWalkerBoard):
 
     def default_board():
         arr = np.array(
-            [[-1, 1, 1, 1, 1,-1,-1,-1,-1,-1],
-             [-1, 1,-1,-1, 1,-1,-1,-1,-1,-1],
-             [-1, 0,-1,-1, 1,-1,-1,-1,-1,-1],
-             [-1, 0,-1,-1, 1,-1,-1,-1,-1,-1],
-             [-1, 0,-1,-1, 1,-1,-1, 2,-1,-1],
-             [-1, 0,-1,-1, 1,-1, 2, 2, 2,-1],
-             [-1, 0, 0, 0, 0,-1, 2,-1, 2,-1],
-             [-1,-1,-1,-1,-1,-1, 2,-1, 2,-1],
-             [-1, 2, 2, 2, 2, 2, 2, 2, 2,-1],
-             [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],]).transpose()
+            [[ 1, 1, 1, 1,-1,-1,-1,-1],
+             [ 1,-1,-1, 1,-1,-1,-1,-1],
+             [ 0,-1,-1, 1,-1,-1,-1,-1],
+             [ 0,-1,-1, 1,-1,-1, 2,-1],
+             [ 0,-1,-1, 1,-1, 2, 2, 2],
+             [ 0, 0, 0, 0,-1, 2,-1, 2],
+             [-1,-1,-1,-1,-1, 2,-1, 2],
+             [ 2, 2, 2, 2, 2, 2, 2, 2],]).transpose()
         return arr
 
     def visualize(self):
@@ -185,14 +199,22 @@ class MulticoloredBlockWalkerBoard(BlockWalkerBoard):
         draw.rectangle(idx_to_rectanglecoords(self.goalpos), fill=MAGENTA)
         draw.rectangle(idx_to_rectanglecoords(self.playerpos),
                        fill=COLORS[self.player_cid], outline=BLACK)
+        im = np.array(im)
         if noise == True:
-            p = np.array(im)
-            p += cv2.randn(np.empty_like(p), (0, 0, 0), 0.25*
+            im += cv2.randn(np.empty_like(im), (0, 0, 0), 0.25*
                            np.array([[1, 0.5, 0.5],
                                      [0.5, 1, 0.5],
                                      [0.5, 0.5, 1]]))
-            im = Image.fromarray(p)
-        return im
+        # im = Image.fromarray(im, mode="RGB").convert(mode="L")
+        return np.array(im)
+
+def random_board():
+    board = np.reshape(
+        np.random.choice([-1,0,1,2], size=(xmax, ymax), p=[.4, .2, .2, .2]),
+        (xmax, ymax))
+    return board
+
+
 
 def idx_to_rectanglecoords(idx):
     pidx = idx*PIXELS_PER_INDEX

@@ -21,3 +21,7 @@ register(
     id='blockwalker-multicolored-v0',
     entry_point='gym_mnist.envs:MulticoloredBlockWalkerEnv',
 )
+register(
+    id='blockwalker-random-v0',
+    entry_point='gym_mnist.envs:MulticoloredRandomBlockWalkerEnv',
+)
