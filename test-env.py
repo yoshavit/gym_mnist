@@ -1,11 +1,9 @@
-import numpy as np
 import gym
-import time
 import gym_mnist
 from gym_mnist.resources.getch import getch
 from pynput import keyboard
 
-env = gym.make('mnist-v0')
+env = gym.make('blockwalker-random-v0')
 
 wasd = ['w','a','s','d', 'c']
 intkeys = [0,1,2,3, 4]

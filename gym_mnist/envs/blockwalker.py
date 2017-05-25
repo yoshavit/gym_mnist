@@ -27,8 +27,6 @@ class BlockWalkerEnv(gym.Env):
                                    shape=(xmax*PIXELS_PER_INDEX,
                                           ymax*PIXELS_PER_INDEX,
                                           3))
-    def __init__(self):
-        self.figure = None
 
     def _step(self, action):
         pos_before = np.copy(self.board.playerpos)
@@ -37,8 +35,8 @@ class BlockWalkerEnv(gym.Env):
         done = np.array_equal(self.board.playerpos, self.board.goalpos)
         pos_after = np.copy(self.board.playerpos)
         reward = 0
-        if ACTION_MEANING[action] == "CSWAP":
-            reward = -.3
+        # if ACTION_MEANING[action] == "CSWAP":
+            # reward = -.3
         if done: reward = 1
         info = {'state': pos_before, 'next_state': pos_after}
         return self.obs, reward, done, info
@@ -51,15 +49,12 @@ class BlockWalkerEnv(gym.Env):
     def _render(self, mode='human', close=False):
         if mode != 'human': return
         if close:
-            if self.figure:
-                plt.figure(self.figure.number)
-                plt.close()
+            cv2.destroyWindow('game')
             return
-        if not self.figure:
-            self.figure = plt.figure()
-        plt.figure(self.figure.number)
-        plt.imshow(self.obs)
-        plt.pause(.01)
+        cv2.namedWindow('game', cv2.WINDOW_NORMAL)
+        img = cv2.resize(self.obs, None, fx=5, fy=5)
+        cv2.imshow('game', img)
+        cv2.waitKey(25)
 
     def get_action_meanings(self):
         return ACTION_MEANING
@@ -138,17 +133,18 @@ class BlockWalkerBoard:
                        fill=RED, outline=BLACK)
         im = np.array(im)
         if noise == True:
-            im += cv2.randn(np.empty_like(im), (0, 0, 0), 0.25*
+            im += cv2.randn(np.empty_like(im), (0, 0, 0), 0.5*
                            np.array([[1, 0.5, 0.5],
                                      [0.5, 1, 0.5],
                                      [0.5, 0.5, 1]]))
         return im
 
-COLORS = [RED, GREEN, BLUE]
+PLAYER_COLORS = [RED, GREEN, BLUE]
 
 class MulticoloredBlockWalkerBoard(BlockWalkerBoard):
     """
     Board integer meanings:
+        -2 is black
         -1 is empty
         0 is red
         1 is green
@@ -158,12 +154,12 @@ class MulticoloredBlockWalkerBoard(BlockWalkerBoard):
         if boardarr is None:
             boardarr = MulticoloredBlockWalkerBoard.default_board()
         BlockWalkerBoard.__init__(self, boardarr)
-        self.player_cid = random.randrange(len(COLORS))
+        self.player_cid = random.randrange(len(PLAYER_COLORS))
         self.boardarr[self.goalpos[0], self.goalpos[1]] = -1
 
     def step(self, action):
         if action == "CSWAP":
-            self.player_cid = (self.player_cid + 1)%len(COLORS)
+            self.player_cid = (self.player_cid + 1)%len(PLAYER_COLORS)
         else:
             original = np.copy(self.playerpos)
             BlockWalkerBoard.step(self, action)
@@ -195,10 +191,10 @@ class MulticoloredBlockWalkerBoard(BlockWalkerBoard):
                 if self.boardarr[i,j] != -1:
                     draw.rectangle(
                         idx_to_rectanglecoords(np.array([i,j])),
-                        fill=COLORS[self.boardarr[i,j]])
+                        fill=PLAYER_COLORS[self.boardarr[i,j]])
         draw.rectangle(idx_to_rectanglecoords(self.goalpos), fill=MAGENTA)
         draw.rectangle(idx_to_rectanglecoords(self.playerpos),
-                       fill=COLORS[self.player_cid], outline=BLACK)
+                       fill=PLAYER_COLORS[self.player_cid], outline=BLACK)
         im = np.array(im)
         if noise == True:
             im += cv2.randn(np.empty_like(im), (0, 0, 0), 0.25*
@@ -207,6 +203,19 @@ class MulticoloredBlockWalkerBoard(BlockWalkerBoard):
                                      [0.5, 0.5, 1]]))
         # im = Image.fromarray(im, mode="RGB").convert(mode="L")
         return np.array(im)
+
+class CatMouseBlockWalkerBoard(MulticoloredBlockWalkerBoard):
+
+    def __init__(self, boardarr=None):
+        n_enemies = 3
+        self.enemies = []
+        for i in range(n_enemies):
+            pass
+
+class Enemy:
+    def __init__(self, pos, color):
+        self.pos = pos
+        self.color = color
 
 def random_board():
     board = np.reshape(

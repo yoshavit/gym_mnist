@@ -24,4 +24,5 @@ register(
 register(
     id='blockwalker-random-v0',
     entry_point='gym_mnist.envs:MulticoloredRandomBlockWalkerEnv',
+    max_episode_steps=300,
 )
