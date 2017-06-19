@@ -30,25 +30,17 @@ class MNISTEnv(gym.Env):
                                    shape=(IMG_SIDEWIDTH,IMG_SIDEWIDTH, 1))
     def __init__(self, target_digit=0, full_mnist=False):
         # first, load all the MNIST images into RAM
-        self.mnist_library = [np.empty((0, IMG_SIDEWIDTH, IMG_SIDEWIDTH)) for k
+        self.filename_library = [[] for k
                               in range(10)]
         CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
         MNIST_DIR = CURRENT_DIR + CURRENT_DIR_TO_MNIST_DIR
         for i in range(10):
             DIGIT_DIR = MNIST_DIR + "digit%d/" % i
-            digit_filenames = os.listdir(DIGIT_DIR)
-            if not full_mnist:
-                digit_filenames = np.random.choice(digit_filenames,
-                                                   int(PARTIAL_DATASET_SIZE))
-            self.mnist_library[i] = np.empty(
-                (len(digit_filenames),IMG_SIDEWIDTH,IMG_SIDEWIDTH))
-            for j in range(len(digit_filenames)):
-                filename = DIGIT_DIR + digit_filenames[j]
-                im = imread(filename)
-                self.mnist_library[i][j,:,:] = im
+            digit_filenames = [DIGIT_DIR + name for name in
+                               os.listdir(DIGIT_DIR)]
+            self.filename_library[i] = digit_filenames
         # Now, decide on the target digit
         self.target_digit = target_digit
-
 
     def _step(self, action):
         old_digit = self.current_digit
@@ -88,23 +80,24 @@ class MNISTEnv(gym.Env):
 
     def _get_image_from_digit(self, digit):
         # returns an MNIST digit corresponding to the inputted digit
-        idx = np.random.choice(self.mnist_library[digit].shape[0])
-        return np.expand_dims(self.mnist_library[digit][idx,:,:], -1)
-
-    def _get_full_mnist_dataset(self):
-        images = []
-        labels = []
-        for digit in range(len(self.mnist_library)):
-            for image in self.mnist_library[digit]:
-                images.append(image)
-                labels.append(digit)
-        pairs = list(zip(images, labels))
-        random.shuffle(pairs)
-        images, labels = zip(*pairs)
-        return images, labels
+        filename = random.choice(self.filename_library[digit])
+        im = imread(filename)
+        im = np.expand_dims(im, -1) # add a single color channel)
+        return im
 
     def get_action_meanings(self):
         return ACTION_MEANING
+
+class BarebonesMNISTEnv(MNISTEnv):
+    observation_space = spaces.Box(low=0, high=1, shape=(10))
+    def _get_image_from_digit(self, digit):
+        arr = np.zeros(10)
+        arr[digit] = 1
+        return arr
+    def _render(self):
+        print (self.current_digit)
+
+
 
 ACTION_MEANING = {
     0 : "NOP",

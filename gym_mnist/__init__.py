@@ -5,13 +5,12 @@ register(
     entry_point='gym_mnist.envs:MNISTEnv',
 )
 register(
-    id='mnist-full-v0',
-    entry_point='gym_mnist.envs:MNISTEnv',
-    kwargs={'full_mnist':True},
+    id='mnist-barebones-v0',
+    entry_point='gym_mnist.envs:BarebonesMNISTEnv',
 )
 register(
-    id='mnist-multiaction-v0',
-    entry_point='gym_mnist.envs:MNISTMultiactionEnv',
+    id='mnist-9game-v0',
+    entry_point='gym_mnist.envs:MNIST9GameEnv',
 )
 register(
     id='blockwalker-v0',
