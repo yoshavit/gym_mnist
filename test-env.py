@@ -3,10 +3,10 @@ import gym_mnist
 from gym_mnist.resources.getch import getch
 from pynput import keyboard
 
-env = gym.make('mnist-9game-v0')
+env = gym.make('mnist-9game-simple-v0')
 
-wasd = ['w','a','s','d', 'c']
-intkeys = [0,1,2,3, 4]
+wasd = ['w','a','s','d','c']
+intkeys = [0,1,2,3,4]
 
 input_keys = wasd
 

@@ -1,4 +1,5 @@
 from gym.envs.registration import register
+import numpy as np
 
 register(
     id='mnist-v0',
@@ -11,6 +12,14 @@ register(
 register(
     id='mnist-9game-v0',
     entry_point='gym_mnist.envs:MNIST9GameEnv',
+)
+
+simple_init_fn = lambda: np.random.permutation([0]+[1]*4+[2]*4).reshape([3, 3])
+register(
+    id='mnist-9game-simple-v0',
+    max_episode_steps=300,
+    entry_point='gym_mnist.envs:MNIST9GameEnv',
+    kwargs={"init_fn":simple_init_fn}
 )
 register(
     id='blockwalker-v0',
