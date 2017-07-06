@@ -7,7 +7,7 @@ import cv2
 
 SUBPANE_SIDEWIDTH = 14
 CURRENT_DIR_TO_MNIST_DIR = "/../resources/"
-d = 2 # panes per side
+d = 3 # panes per side
 
 class MNIST9GameEnv(gym.Env):
     metadata = {'render.modes': ['human', 'training']}
@@ -86,7 +86,7 @@ class TileGame:
         # x axis (major) is vertical, y axis (minor) is vertical
         self.d = sidewidth
         if init_fn is None:
-            init_fn = lambda x: np.reshape(np.random.permutation(self.d**2),
+            init_fn = lambda: np.reshape(np.random.permutation(self.d**2),
                                            [self.d, self.d])
         self.init_fn = init_fn
         self._reset()
