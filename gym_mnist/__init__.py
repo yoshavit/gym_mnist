@@ -12,6 +12,7 @@ register(
 register(
     id='mnist-9game-v0',
     entry_point='gym_mnist.envs:MNIST9GameEnv',
+    max_episode_steps=300,
 )
 
 simple_init_fn = lambda: np.random.permutation([0]+[1]*4+[2]*4).reshape([3, 3])
