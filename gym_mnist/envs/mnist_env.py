@@ -28,7 +28,7 @@ class MNISTEnv(gym.Env):
     action_space = spaces.Discrete(4)
     observation_space = spaces.Box(low=0, high=255,
                                    shape=(IMG_SIDEWIDTH,IMG_SIDEWIDTH, 1))
-    def __init__(self, target_digit=0, full_mnist=False):
+    def __init__(self, target_digits=0, full_mnist=False):
         # first, load all the MNIST images into RAM
         self.filename_library = [[] for k
                               in range(10)]
@@ -40,7 +40,15 @@ class MNISTEnv(gym.Env):
                                os.listdir(DIGIT_DIR)]
             self.filename_library[i] = digit_filenames
         # Now, decide on the target digit
-        self.target_digit = target_digit
+        if target_digits is None:
+            self.target_digits = list(range(10))
+        elif isinstance(target_digits, list):
+            self.target_digits = target_digits
+        else:
+            self.target_digits = list(target_digits)
+        self.target_digit = random.choice(target_digits)
+        self.goal_state = self._get_image_from_digit(self.target_digit)
+
 
     def _step(self, action):
         old_digit = self.current_digit
@@ -56,15 +64,17 @@ class MNISTEnv(gym.Env):
             raise ValueError("Action must be encoded as an int between 0 and 2")
         self.current_digit_image = self._get_image_from_digit(self.current_digit)
         done = self.current_digit == self.target_digit
-        if done:
-            reward = 1.0
-        else:
-            reward = -0.2
+        reward = 1 if done else 0
         return (self.current_digit_image, reward, done, {'state': old_digit,
-                                                         'next_state': self.current_digit})
+                                                         'next_state': self.current_digit,
+                                                         'goal_state': self.goal_state
+                                                        })
 
     def _reset(self):
-        self.current_digit = np.random.randint(9) + 1
+        self.target_digit = random.choice(self.target_digits)
+        self.goal_state = self._get_image_from_digit(self.target_digit)
+        self.current_digit = np.random.choice(list(range(self.target_digit)) +\
+                                              list(range(self.target_digit + 1, 10)))
         self.current_digit_image = self._get_image_from_digit(self.current_digit)
         return self.current_digit_image
 

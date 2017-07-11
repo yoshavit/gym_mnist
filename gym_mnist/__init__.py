@@ -6,8 +6,9 @@ register(
     entry_point='gym_mnist.envs:MNISTEnv',
 )
 register(
-    id='mnist-barebones-v0',
-    entry_point='gym_mnist.envs:BarebonesMNISTEnv',
+    id='mnist-multigoal-v0',
+    entry_point='gym_mnist.envs:MNISTEnv',
+    kwargs={'target_digits': [0, 4, 8]}
 )
 register(
     id='mnist-9game-v0',

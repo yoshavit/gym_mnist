@@ -1,11 +1,10 @@
 from setuptools import setup
-import urllib
 import os
 from scipy.misc import imsave
 
 setup(name='gym_mnist',
-      version='0.0.1',
-      install_requires=['certifi','gym','scipy','matplotlib'] 
+      version='0.0.2',
+      install_requires=['certifi','gym','scipy','pillow']
 )
 try:
     from tensorflow.contrib.learn.python.learn.datasets.mnist import load_mnist
