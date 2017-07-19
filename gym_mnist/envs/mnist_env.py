@@ -45,8 +45,8 @@ class MNISTEnv(gym.Env):
         elif isinstance(target_digits, list):
             self.target_digits = target_digits
         else:
-            self.target_digits = list(target_digits)
-        self.target_digit = random.choice(target_digits)
+            self.target_digits = [target_digits]
+        self.target_digit = random.choice(self.target_digits)
         self.goal_state = self._get_image_from_digit(self.target_digit)
 
 

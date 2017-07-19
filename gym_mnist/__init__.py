@@ -20,7 +20,7 @@ simple_init_fn = lambda: np.random.permutation([0]+[1]*4+[2]*4).reshape([3, 3])
 # simple_init_fn = lambda: np.random.permutation([0]+[1] + [2]*2).reshape([2, 2])
 register(
     id='mnist-9game-simple-v0',
-    max_episode_steps=300,
+    max_episode_steps=100,
     entry_point='gym_mnist.envs:MNIST9GameEnv',
     kwargs={"init_fn":simple_init_fn}
 )

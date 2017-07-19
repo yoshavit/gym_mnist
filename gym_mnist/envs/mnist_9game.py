@@ -5,7 +5,7 @@ import os
 import random
 import cv2
 
-SUBPANE_SIDEWIDTH = 14
+SUBPANE_SIDEWIDTH = 28
 CURRENT_DIR_TO_MNIST_DIR = "/../resources/"
 d = 3 # panes per side
 
@@ -36,12 +36,14 @@ class MNIST9GameEnv(gym.Env):
         reward = done = self.tg._step(action)
         self.current_image = self._get_image_from_order(self.tg.state)
         return (self.current_image, reward, done, {'state': old_order,
-                                                         'next_state':
-                                                         self.tg.state})
+                                                   'next_state': self.tg.state,
+                                                   'goal_state': self.goal_image
+                                                })
 
     def _reset(self):
         self.tg._reset()
         self.current_image = self._get_image_from_order(self.tg.state)
+        self.goal_image = self._get_image_from_order(self.tg.target)
         return self.current_image
 
     def _render(self, mode='human', close=False):
@@ -82,7 +84,7 @@ ACTION_MEANING = {
 }
 
 class TileGame:
-    def __init__(self, sidewidth, init_fn=None, goal_fn=None):
+    def __init__(self, sidewidth, init_fn=None, goal_fn=None, target=None):
         # x axis (major) is vertical, y axis (minor) is vertical
         self.d = sidewidth
         if init_fn is None:
@@ -90,11 +92,14 @@ class TileGame:
                                            [self.d, self.d])
         self.init_fn = init_fn
         self._reset()
+        assert not (bool(goal_fn) and bool(target)), "Must specify at most one of goal_fn or target"
         if goal_fn is None:
+            self.target = target if target else np.sort(self.state.flatten()).reshape([self.d, self.d])
             # assumes init_fn permutes the same set of inputs
-            target = np.sort(self.state.flatten())
-            goal_fn = lambda x: (x.flatten() == target).all()
-        self.goal_fn = goal_fn
+            self.goal_fn = lambda x: (x.flatten() == self.target.flatten()).all()
+        else:
+            self.target = None
+            self.goal_fn = goal_fn
 
     def _reset(self):
         self.state = self.init_fn()
