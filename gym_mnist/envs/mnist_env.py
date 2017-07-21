@@ -47,7 +47,7 @@ class MNISTEnv(gym.Env):
         else:
             self.target_digits = [target_digits]
         self.target_digit = random.choice(self.target_digits)
-        self.goal_state = self._get_image_from_digit(self.target_digit)
+        self.goal_image = self._get_image_from_digit(self.target_digit)
 
 
     def _step(self, action):
@@ -67,16 +67,16 @@ class MNISTEnv(gym.Env):
         reward = 1 if done else 0
         return (self.current_digit_image, reward, done, {'state': old_digit,
                                                          'next_state': self.current_digit,
-                                                         'goal_state': self.goal_state
+                                                         'goal_state': self.goal_image
                                                         })
 
     def _reset(self):
         self.target_digit = random.choice(self.target_digits)
-        self.goal_state = self._get_image_from_digit(self.target_digit)
+        self.goal_image = self._get_image_from_digit(self.target_digit)
         self.current_digit = np.random.choice(list(range(self.target_digit)) +\
                                               list(range(self.target_digit + 1, 10)))
         self.current_digit_image = self._get_image_from_digit(self.current_digit)
-        return self.current_digit_image
+        return self.current_digit_image, self.goal_image
 
     def _render(self, mode='human', close=False):
         if mode != 'human': return
@@ -94,6 +94,10 @@ class MNISTEnv(gym.Env):
         im = imread(filename)
         im = np.expand_dims(im, -1) # add a single color channel)
         return im
+
+    def _get_random_obs(self, digit):
+        digit = random.randrange(10)
+        return self._get_image_from_digit(digit)
 
     def get_action_meanings(self):
         return ACTION_MEANING

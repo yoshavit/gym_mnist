@@ -44,7 +44,7 @@ class MNIST9GameEnv(gym.Env):
         self.tg._reset()
         self.current_image = self._get_image_from_order(self.tg.state)
         self.goal_image = self._get_image_from_order(self.tg.target)
-        return self.current_image
+        return self.current_image, self.goal_image
 
     def _render(self, mode='human', close=False):
         if mode != 'human': return
@@ -64,6 +64,10 @@ class MNIST9GameEnv(gym.Env):
             image_slices.append(np.concatenate(panes, axis=0))
         output_image = np.concatenate(image_slices, axis=1)
         return output_image
+
+    def _get_random_obs(self):
+        order = np.random.permutation(self.tg.init_fn().flatten()).reshape([d, d])
+        return self._get_image_from_order(order)
 
     def _get_image_from_digit(self, digit):
         # returns an MNIST digit corresponding to the inputted digit
