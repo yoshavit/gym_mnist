@@ -6,6 +6,11 @@ register(
     entry_point='gym_mnist.envs:MNISTEnv',
 )
 register(
+    id='mnist-linear-v0',
+    entry_point='gym_mnist.envs:MNISTEnv',
+    kwargs={'actions_type': "linear"}
+)
+register(
     id='mnist-multigoal-v0',
     entry_point='gym_mnist.envs:MNISTEnv',
     kwargs={'target_digits': [0, 4, 8]}

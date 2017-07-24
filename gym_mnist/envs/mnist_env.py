@@ -15,20 +15,16 @@ class MNISTEnv(gym.Env):
     '''
     This environment encodes a game with a reward for reaching
     a particular number (default 0) using only elementary operations
-    (+1, -1, *2) always mod 10. The reward for each action is -0.1,
+    (specified by actions_type as either "complex" or "linear") always mod 10.
+    The reward for each action is 0,
     until we reach the goal, at which point it is 1.0
-
-    Action definitions:
-        '0' : do nothing
-        '1' : increment digit by 1
-        '2' : multiply digit by 2
-        '3' : multiply digit by 3
 '''
     metadata = {'render.modes': ['human', 'training']}
     action_space = spaces.Discrete(4)
     observation_space = spaces.Box(low=0, high=255,
                                    shape=(IMG_SIDEWIDTH,IMG_SIDEWIDTH, 1))
-    def __init__(self, target_digits=0, full_mnist=False):
+    def __init__(self, target_digits=0, full_mnist=False,
+                 actions_type="complex"):
         # first, load all the MNIST images into RAM
         self.filename_library = [[] for k
                               in range(10)]
@@ -48,20 +44,32 @@ class MNISTEnv(gym.Env):
             self.target_digits = [target_digits]
         self.target_digit = random.choice(self.target_digits)
         self.goal_image = self._get_image_from_digit(self.target_digit)
+        self.actions_type = actions_type
+        assert self.actions_type in ["linear", "complex"]
 
 
     def _step(self, action):
         old_digit = self.current_digit
-        if action == 0:
-            pass
-        elif action == 1:
-            self.current_digit = (self.current_digit + 1) % 10
-        elif action == 2:
-            self.current_digit = (self.current_digit * 2) % 10
-        elif action == 3:
-            self.current_digit = (self.current_digit * 3) % 10
+        if self.actions_type == "complex":
+            if action == 0:
+                pass
+            elif action == 1:
+                self.current_digit = (self.current_digit + 1) % 10
+            elif action == 2:
+                self.current_digit = (self.current_digit * 2) % 10
+            elif action == 3:
+                self.current_digit = (self.current_digit * 3) % 10
+            else:
+                raise ValueError("Action must be encoded as an int between 0 and 3")
+        elif self.actions_type == "linear":
+            if action == 0 or action == 2:
+                self.current_digit = (self.current_digit - 1) % 10
+            elif action == 1 or action == 3:
+                self.current_digit = (self.current_digit + 1) % 10
+            else:
+                raise ValueError("Action must be encoded as an int between 0 and 2")
         else:
-            raise ValueError("Action must be encoded as an int between 0 and 2")
+            raise ValueError("Invalid actions_type; was {}".format(self.actions_type))
         self.current_digit_image = self._get_image_from_digit(self.current_digit)
         done = self.current_digit == self.target_digit
         reward = 1 if done else 0
@@ -100,7 +108,12 @@ class MNISTEnv(gym.Env):
         return self._get_image_from_digit(digit)
 
     def get_action_meanings(self):
-        return ACTION_MEANING
+        if self.actions_type == "linear":
+            return ACTION_MEANING_LINEAR
+        elif self.actions_type == "complex":
+            return ACTION_MEANING_COMPLEX
+        else:
+            raise ValueError
 
 class BarebonesMNISTEnv(MNISTEnv):
     observation_space = spaces.Box(low=0, high=1, shape=(10))
@@ -113,10 +126,16 @@ class BarebonesMNISTEnv(MNISTEnv):
 
 
 
-ACTION_MEANING = {
+ACTION_MEANING_COMPLEX = {
     0 : "NOP",
     1 : "+1",
     2 : "x2",
     3 : "x3"
 }
 
+ACTION_MEANING_LINEAR = {
+    0: "-1",
+    1: "+1",
+    2: "-1",
+    3: "+1"
+}
