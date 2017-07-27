@@ -81,8 +81,7 @@ class MNISTEnv(gym.Env):
     def _reset(self):
         self.target_digit = random.choice(self.target_digits)
         self.goal_image = self._get_image_from_digit(self.target_digit)
-        self.current_digit = np.random.choice(list(range(self.target_digit)) +\
-                                              list(range(self.target_digit + 1, 10)))
+        self.current_digit = np.random.choice([i for i in range(10) if i!=self.target_digit])
         self.current_digit_image = self._get_image_from_digit(self.current_digit)
         return self.current_digit_image, self.goal_image
 
