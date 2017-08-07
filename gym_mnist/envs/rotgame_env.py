@@ -14,8 +14,8 @@ class RotgameEnv(gym.Env):
     metadata = {'render.modes': ['human', 'training']}
     action_space = spaces.Discrete(dx + dy)
     observation_space = spaces.Box(low=0, high=255,
-                                   shape=(dy*SUBPANE_SIDEWIDTH,
-                                          dx*SUBPANE_SIDEWIDTH,
+                                   shape=(dx*SUBPANE_SIDEWIDTH,
+                                          dy*SUBPANE_SIDEWIDTH,
                                           1))
     def __init__(self, always_feasible=True, init_fn=None, goal_fn=None):
         # first, load all the MNIST image filenames
