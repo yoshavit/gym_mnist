@@ -95,7 +95,6 @@ class RotGame:
         self.goal_fn = lambda x: (x == self.target).all()
 
     def _reset(self):
-        print([self.init_fn() for i in range(10)])
         self.state = self.init_fn()
 
     def _step(self, action):
