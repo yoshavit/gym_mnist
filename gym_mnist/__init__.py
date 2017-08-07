@@ -25,6 +25,11 @@ register(
     entry_point='gym_mnist.envs:FlipgameEnv',
     max_episode_steps=100,
 )
+register(
+    id='rotgame-v0',
+    entry_point='gym_mnist.envs:RotgameEnv',
+    max_episode_steps=100,
+)
 simple_init_fn = lambda: np.random.permutation([0]+[1]*4+[2]*4).reshape([3, 3])
 # simple_init_fn = lambda: np.random.permutation([0]+[1] + [2]*2).reshape([2, 2])
 register(

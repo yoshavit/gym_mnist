@@ -9,11 +9,10 @@ SUBPANE_SIDEWIDTH = 28
 CURRENT_DIR_TO_MNIST_DIR = "/../resources/"
 dx = 2 # panes per side
 dy = 3
-maxval = 3 # num values each tile can take (0 to vals-1)
 
-class FlipgameEnv(gym.Env):
+class RotgameEnv(gym.Env):
     metadata = {'render.modes': ['human', 'training']}
-    action_space = spaces.Discrete(dx+dy+1)
+    action_space = spaces.Discrete(dx + dy)
     observation_space = spaces.Box(low=0, high=255,
                                    shape=(dy*SUBPANE_SIDEWIDTH,
                                           dx*SUBPANE_SIDEWIDTH,
@@ -30,23 +29,21 @@ class FlipgameEnv(gym.Env):
                                os.listdir(DIGIT_DIR)]
             self.filename_library[i] = digit_filenames
         # initialize the game engine
-        self.fg = FlipGame(dx, dy, maxval, always_feasible=always_feasible,
-                           init_fn=init_fn,
-                           goal_fn=goal_fn)
+        self.rg = RotGame()
 
     def _step(self, action):
-        old_order = np.copy(self.fg.state)
-        reward = done = self.fg._step(action)
-        self.current_image = self._get_image_from_order(self.fg.state)
+        old_order = np.copy(self.rg.state)
+        reward = done = self.rg._step(action)
+        self.current_image = self._get_image_from_order(self.rg.state)
         return (self.current_image, reward, done, {'state': old_order,
-                                                   'next_state': self.fg.state,
+                                                   'next_state': self.rg.state,
                                                    'goal_state': self.goal_image
                                                 })
 
     def _reset(self):
-        self.fg._reset()
-        self.current_image = self._get_image_from_order(self.fg.state)
-        self.goal_image = self._get_image_from_order(self.fg.target)
+        self.rg._reset()
+        self.current_image = self._get_image_from_order(self.rg.state)
+        self.goal_image = self._get_image_from_order(self.rg.target)
         return self.current_image, self.goal_image
 
     def _render(self, mode='human', close=False):
@@ -69,7 +66,7 @@ class FlipgameEnv(gym.Env):
         return output_image
 
     def _get_random_obs(self):
-        order = np.random.randint(maxval, size=[dx, dy])
+        order = np.random.randint(dy, size=[dx, dy])
         return self._get_image_from_order(order), order
 
     def _get_image_from_digit(self, digit):
@@ -88,57 +85,29 @@ for i in range(dx):
     ACTION_MEANING[i] = "ROW%d"%i
 for i in range(dy):
     ACTION_MEANING[dx+i] = "COL%d"%i
-ACTION_MEANING[dx+dy] = "DIAG"
 
-class FlipGame:
-    def __init__(self, height, width, maxval=2, always_feasible=True,
-                 init_fn=None, goal_fn=None, target=None):
+class RotGame:
+    def __init__(self):
         # x axis (major) is vertical, y axis (minor) is vertical
-        self.dx = height
-        self.dy = width
-        self.maxval = maxval
-        if init_fn is not None:
-            self.init_fn = init_fn
-        elif always_feasible:
-            self.init_fn = self._init_from_goal
-        else:
-            self.init_fn = lambda: np.random.randint(self.maxval,
-                                                     size=[self.dx, self.dy])
-        assert not (bool(goal_fn) and bool(target)), "Must specify at most one of goal_fn or target"
-        if goal_fn is None:
-            self.target = target if target else np.zeros([self.dx, self.dy],
-                                                         dtype='int64')
-            # assumes init_fn permutes the same set of inputs
-            self.goal_fn = lambda x: (x == self.target).all()
-        else:
-            self.target = target
-            self.goal_fn = goal_fn
+        target = np.asarray(list(range(dy))*dx)
+        self.target = target.reshape([dx, dy])
+        self.init_fn = lambda: np.random.permutation(target).reshape([dx, dy])
+        self.goal_fn = lambda x: (x == self.target).all()
 
     def _reset(self):
+        print([self.init_fn() for i in range(10)])
         self.state = self.init_fn()
-
-    def _init_from_goal(self):
-        self.state = self.target.copy()
-        for _ in range(dx + dy + 2):
-            self._step(random.randrange(dx + dy + 1))
-        return self.state
 
     def _step(self, action):
         # 0 through d-1 are row-flips, d through 2d-1 are column flips, 2d is
         # diag
         assert action <= dx + dy
-        diag = action == dx + dy
-        flip_column = (action >= dx) and not diag # true if column, false if row
-        if diag:
-            for i in range(self.dx):
-                self.state[i,(self.dx-1)-i] = (self.state[i,(self.dx-1) - i] + 1) % self.maxval
-        elif flip_column:
+        flip_column = (action >= dx) # true if column, false if row
+        if flip_column:
             idx = action - dx
-            for row in range(dx):
-                self.state[row, idx] = (self.state[row, idx] + 1) % self.maxval
+            self.state[:, idx] = np.roll(self.state[:, idx], 1)
         else:
             idx = action
-            for col in range(dy):
-                self.state[idx, col] = (self.state[idx, col] + 1) % self.maxval
+            self.state[idx, :] = np.roll(self.state[idx, :], 1)
         goal = self.goal_fn(self.state)
         return goal

@@ -102,9 +102,9 @@ class MNISTEnv(gym.Env):
         im = np.expand_dims(im, -1) # add a single color channel)
         return im
 
-    def _get_random_obs(self, digit):
-        digit = random.randrange(10)
-        return self._get_image_from_digit(digit)
+    def _get_random_obs(self, digit=None):
+        digit = digit if digit else random.randrange(10)
+        return self._get_image_from_digit(digit), digit
 
     def get_action_meanings(self):
         if self.actions_type == "linear":
