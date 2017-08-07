@@ -10,10 +10,11 @@ CURRENT_DIR_TO_MNIST_DIR = "/../resources/"
 dx = 2 # panes per side
 dy = 3
 maxval = 3 # num values each tile can take (0 to vals-1)
+withdiag = False
 
 class FlipgameEnv(gym.Env):
     metadata = {'render.modes': ['human', 'training']}
-    action_space = spaces.Discrete(dx+dy+1)
+    action_space = spaces.Discrete(dx+dy+withdiag)
     observation_space = spaces.Box(low=0, high=255,
                                    shape=(dx*SUBPANE_SIDEWIDTH,
                                           dy*SUBPANE_SIDEWIDTH,
@@ -88,7 +89,8 @@ for i in range(dx):
     ACTION_MEANING[i] = "ROW%d"%i
 for i in range(dy):
     ACTION_MEANING[dx+i] = "COL%d"%i
-ACTION_MEANING[dx+dy] = "DIAG"
+if withdiag:
+    ACTION_MEANING[dx+dy] = "DIAG"
 
 class FlipGame:
     def __init__(self, height, width, maxval=2, always_feasible=True,
@@ -119,15 +121,15 @@ class FlipGame:
 
     def _init_from_goal(self):
         self.state = self.target.copy()
-        for _ in range(dx + dy + 2):
-            self._step(random.randrange(dx + dy + 1))
+        for _ in range(dx + dy + withdiag + 1):
+            self._step(random.randrange(dx + dy + withdiag))
         return self.state
 
     def _step(self, action):
         # 0 through d-1 are row-flips, d through 2d-1 are column flips, 2d is
         # diag
-        assert action <= dx + dy
-        diag = action == dx + dy
+        assert action <= dx + dy + withdiag
+        diag = (action == dx + dy + withdiag) and withdiag
         flip_column = (action >= dx) and not diag # true if column, false if row
         if diag:
             for i in range(self.dx):
