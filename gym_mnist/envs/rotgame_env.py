@@ -101,19 +101,21 @@ class RotGame:
     def _init_from_goal(self):
         self.state = self.target.copy()
         for _ in range(dx + dy):
-            self._step(random.randrange(dx + dy))
+            self._step(random.randrange(dx + dy), rollright=False) # reverse of
+            # normal actions to ensure state is reachable
         return self.state
 
-    def _step(self, action):
+    def _step(self, action, rollright=True):
         # 0 through d-1 are row-flips, d through 2d-1 are column flips, 2d is
         # diag
         assert action < dx + dy
+        polarity = rollright*2 - 1
         flip_column = (action >= dx) # true if column, false if row
         if flip_column:
             idx = action - dx
-            self.state[:, idx] = np.roll(self.state[:, idx], 1)
+            self.state[:, idx] = np.roll(self.state[:, idx], polarity)
         else:
             idx = action
-            self.state[idx, :] = np.roll(self.state[idx, :], 1)
+            self.state[idx, :] = np.roll(self.state[idx, :], polarity)
         goal = self.goal_fn(self.state)
         return goal
