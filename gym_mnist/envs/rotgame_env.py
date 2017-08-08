@@ -91,16 +91,23 @@ class RotGame:
         # x axis (major) is vertical, y axis (minor) is vertical
         target = np.asarray(list(range(dy))*dx)
         self.target = target.reshape([dx, dy])
-        self.init_fn = lambda: np.random.permutation(target).reshape([dx, dy])
+        self.init_fn = self._init_from_goal
+        # self.init_fn = lambda: np.random.permutation(target).reshape([dx, dy])
         self.goal_fn = lambda x: (x == self.target).all()
 
     def _reset(self):
         self.state = self.init_fn()
 
+    def _init_from_goal(self):
+        self.state = self.target.copy()
+        for _ in range(dx + dy):
+            self._step(random.randrange(dx + dy))
+        return self.state
+
     def _step(self, action):
         # 0 through d-1 are row-flips, d through 2d-1 are column flips, 2d is
         # diag
-        assert action <= dx + dy
+        assert action < dx + dy
         flip_column = (action >= dx) # true if column, false if row
         if flip_column:
             idx = action - dx
