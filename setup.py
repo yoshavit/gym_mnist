@@ -2,11 +2,11 @@ from setuptools import setup
 import os
 setup(name='gym_mnist',
       version='0.0.2',
-      setup_requires=['numpy','opencv-python'],
-      install_requires=['certifi','gym','pillow']
+      setup_requires=['numpy','pillow'],
+      install_requires=['certifi','gym', 'opencv-python']
 )
 from input_data import read_data_sets
-import cv2
+from PIL import Image
 this_dir = os.path.dirname(os.path.realpath(__file__))
 data_dir = this_dir + "/gym_mnist/resources/"
 zip_dir = data_dir + "zipfiles/"
@@ -22,9 +22,8 @@ images = data_sets.train.images
 labels = data_sets.train.labels
 c = [0]*10
 print ("Saving assorted MNIST digits to disk...")
-print(images.shape)
 for i in range(len(images)):
     l = labels[i]
-    im = images[i, :].reshape((28,28))
-    cv2.imwrite(data_dir + "digit" + str(l) + "/im" + str(c[l]) + ".png", im)
+    im = Image.fromarray(images[i, :].reshape((28,28))).convert("L")
+    im.save(data_dir + "digit" + str(l) + "/im" + str(c[l]) + ".png")
     c[l] += 1
