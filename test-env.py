@@ -3,7 +3,7 @@ import gym_mnist
 from gym_mnist.resources.getch import getch
 from pynput import keyboard
 
-env = gym.make('flipgame-v0')
+env = gym.make('rotgame-v0')
 
 # wasd = ['w','a','s','d','c']
 flipgame_ctrls = list('123456789')

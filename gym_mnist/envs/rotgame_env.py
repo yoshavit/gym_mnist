@@ -49,8 +49,8 @@ class RotgameEnv(gym.Env):
     def _render(self, mode='human', close=False):
         if mode != 'human': return
         if close:
-            cv2.destroyWindow('game')
             return
+            cv2.destroyWindow('game')
         cv2.namedWindow('game', cv2.WINDOW_NORMAL)
         img = cv2.resize(self.current_image, None, fx=5, fy=5)
         cv2.imshow('game', img)
