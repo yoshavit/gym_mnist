@@ -1,11 +1,10 @@
 from setuptools import setup
 import os
-from input_data import read_data_sets
-
 setup(name='gym_mnist',
       version='0.0.2',
       install_requires=['numpy','certifi','gym','pillow','opencv-python']
 )
+from input_data import read_data_sets
 import cv2
 this_dir = os.path.dirname(os.path.realpath(__file__))
 data_dir = this_dir + "/gym_mnist/resources/"
