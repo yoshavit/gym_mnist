@@ -2,7 +2,7 @@ from setuptools import setup
 import os
 setup(name='gym_mnist',
       version='0.0.2',
-      setup_requires=['numpy','pillow'],
+      setup_requires=['numpy','pillow','six'],
       install_requires=['certifi','gym', 'opencv-python']
 )
 from input_data import read_data_sets
