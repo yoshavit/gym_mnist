@@ -1,3 +1,4 @@
+*.swp
 # Ignore resources (will be populated by setup.py script)
 gym_mnist/resources/digit*/
 gym_mnist/resources/zipfiles/
