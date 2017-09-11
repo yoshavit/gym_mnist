@@ -1,18 +1,8 @@
 import gym
-from gym import error, spaces, utils
-from gym.utils import seeding
+from gym import spaces
 import numpy as np
 import random
-import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw, ImageColor
-#------------------------------------------------------
-# A hacky solution for @yo-shavit to run OpenCV in conda without bugs
-# Others should remove
-import os
-if os.environ['HOME'] == '/Users/yonadav':
-    import sys;
-    sys.path.append("/Users/yonadav/anaconda/lib/python3.5/site-packages")
-#------------------------------------------------------
 import cv2
 
 xmax = 8; ymax = 8
@@ -35,8 +25,8 @@ class BlockWalkerEnv(gym.Env):
         done = np.array_equal(self.board.playerpos, self.board.goalpos)
         pos_after = np.copy(self.board.playerpos)
         reward = 0
-        # if ACTION_MEANING[action] == "CSWAP":
-            # reward = -.3
+        if ACTION_MEANING[action] == "CSWAP":
+            reward = -.3
         if done: reward = 1
         info = {'state': pos_before, 'next_state': pos_after}
         return self.obs, reward, done, info

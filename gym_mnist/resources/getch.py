@@ -1,3 +1,4 @@
+# from http://code.activestate.com/recipes/134892/
 class _Getch:
     """Gets a single character from standard input.  Does not echo to the
 screen."""
