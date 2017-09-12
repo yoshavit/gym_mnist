@@ -3,7 +3,6 @@ from gym import spaces
 import numpy as np
 import os
 import random
-from scipy.ndimage import imread
 import cv2
 # import matplotlib.pyplot as plt
 
@@ -98,7 +97,7 @@ class MNISTEnv(gym.Env):
     def _get_image_from_digit(self, digit):
         # returns an MNIST digit corresponding to the inputted digit
         filename = random.choice(self.filename_library[digit])
-        im = imread(filename)
+        im = cv2.imread(filename)
         im = np.expand_dims(im, -1) # add a single color channel)
         return im
 
