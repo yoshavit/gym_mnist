@@ -73,8 +73,8 @@ def extract_labels(filename, one_hot=False):
 class DataSet(object):
   def __init__(self, images, labels, fake_data=False, one_hot=False):
     """Construct a DataSet.
-    one_hot arg is used only if fake_data is true.  dtype is `float32` and is
-    rescaled into `[0, 1]`.
+    one_hot arg is used only if fake_data is true.  dtype is `int32` and is
+    scaled into `[0, 255]`.
     """
     if fake_data:
       self._num_examples = 10000
@@ -89,9 +89,6 @@ class DataSet(object):
       assert images.shape[3] == 1
       images = images.reshape(images.shape[0],
                               images.shape[1] * images.shape[2])
-    # Convert from [0, 255] -> [0.0, 1.0].
-    images = images.astype(numpy.float32)
-    images = numpy.multiply(images, 1.0 / 255.0)
     self._images = images
     self._labels = labels
     self._epochs_completed = 0

@@ -1,8 +1,9 @@
 from setuptools import setup
 import os
+import time
 setup(name='gym_mnist',
       version='0.0.2',
-      setup_requires=['numpy','pillow','six'],
+      setup_requires=['numpy','pillow>=4.2.1','six'],
       install_requires=['certifi','gym', 'opencv-python']
 )
 from input_data import read_data_sets
@@ -24,6 +25,10 @@ c = [0]*10
 print ("Saving assorted MNIST digits to disk...")
 for i in range(len(images)):
     l = labels[i]
-    im = Image.fromarray(images[i, :].reshape((28,28))).convert("L")
+    im = Image.fromarray(images[i, :].reshape((28,28))).convert("RGB")
+    im.show()
+    time.sleep(5)
+    im.close()
+    exit
     im.save(data_dir + "digit" + str(l) + "/im" + str(c[l]) + ".png")
     c[l] += 1
