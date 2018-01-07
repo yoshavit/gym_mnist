@@ -2,12 +2,13 @@
 This is the code for the environment benchmarks used in 
 "[Learning Environment Simulators from Sparse Signals](http://yonadavshavit.com/assets/files/masters-engineering-thesis.pdf)" (Shavit 2017).
 
-To set up the package, navigate to the root of this directory and call:
+To use the environments defined in the package, navigate to the root of this project's directory and call:
 ```bash
-pip install -e .
+python setup.py install
 ```
+From now on, you can `import gym_mnist` and then use gym's `gym.make()` to construct the MNIST-game envs.
 
-To play the different environments, call
+To interactively play the different environments, call
 ```bash
 python test-env.py [environment_name]
 ```

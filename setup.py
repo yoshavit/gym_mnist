@@ -3,7 +3,7 @@ import os
 setup(name='gym_mnist',
       version='0.0.2',
       setup_requires=['numpy','pillow>=4.2.1','six'],
-      install_requires=['certifi','gym', 'opencv-python']
+      install_requires=['certifi','gym', 'opencv']
 )
 from input_data import read_data_sets
 import Image
