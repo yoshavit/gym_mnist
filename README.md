@@ -7,7 +7,12 @@ To set up the package, navigate to the root of this directory and call:
 pip install -e .
 ```
 
-To play the different environments, call  
+To play the different environments, call
+```bash
+python test-env.py [environment_name]
+```
+
+For a list of the environment names, simply call 
 ```bash
 python test-env.py -h
 ```
