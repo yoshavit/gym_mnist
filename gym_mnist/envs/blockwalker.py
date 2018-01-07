@@ -2,7 +2,7 @@ import gym
 from gym import spaces
 import numpy as np
 import random
-from PIL import Image, ImageDraw, ImageColor
+import Image, ImageDraw, ImageColor
 import cv2
 
 xmax = 8; ymax = 8

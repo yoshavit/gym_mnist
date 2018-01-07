@@ -6,7 +6,7 @@ setup(name='gym_mnist',
       install_requires=['certifi','gym', 'opencv-python']
 )
 from input_data import read_data_sets
-from PIL import Image
+import Image
 this_dir = os.path.dirname(os.path.realpath(__file__))
 data_dir = this_dir + "/gym_mnist/resources/"
 zip_dir = data_dir + "zipfiles/"
